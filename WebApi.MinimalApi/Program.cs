@@ -17,7 +17,7 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<UserEntity, UserDto>()
         .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"));
     cfg.CreateMap<UserToCreateDto, UserEntity>();
-    cfg.CreateMap<UserToUpdateDto, UserEntity>();
+    cfg.CreateMap<UserToUpdateDto, UserEntity>().ReverseMap();
 }, new System.Reflection.Assembly[0]);
 
 builder.Services.AddControllers(options =>
