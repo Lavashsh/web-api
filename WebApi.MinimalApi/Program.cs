@@ -16,6 +16,7 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<UserEntity, UserDto>()
         .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.LastName} {src.FirstName}"));
+    cfg.CreateMap<UserToCreateDto, UserEntity>();
 }, new System.Reflection.Assembly[0]);
 
 builder.Services.AddControllers(options =>
@@ -38,6 +39,11 @@ builder.Services.AddControllers(options =>
     .ConfigureApiBehaviorOptions(options => {
         options.SuppressModelStateInvalidFilter = true;
         options.SuppressMapClientErrors = true;
+    })
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+        options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Populate;
     });
 
 var app = builder.Build();

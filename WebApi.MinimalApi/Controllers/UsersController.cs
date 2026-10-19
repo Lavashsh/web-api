@@ -18,7 +18,7 @@ public class UsersController : Controller
         _mapper = mapper;
     }
 
-    [HttpGet("{userId}")]
+    [HttpGet("{userId}", Name = nameof(GetUserById))]
     [Produces("application/json", "application/xml")]
     public ActionResult<UserDto> GetUserById([FromRoute] Guid userId)
     {
@@ -33,8 +33,29 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    public IActionResult CreateUser([FromBody] object user)
+    [Consumes("application/json")]
+    [Produces("application/json", "application/xml")]
+    public IActionResult CreateUser([FromBody] UserToCreateDto user)
     {
-        throw new NotImplementedException();
+        if (user == null)
+        {
+            return BadRequest();
+        }
+        if (user.Login != null && !user.Login.All(char.IsLetterOrDigit))
+        {
+            ModelState.AddModelError("Login", "Логин должен состоять только из букв и цифр");
+        }
+        if (!ModelState.IsValid)
+        {
+            return UnprocessableEntity(ModelState);
+        }
+
+        var userEntity = _mapper.Map<UserEntity>(user);
+        var createdUserEntity = _userRepository.Insert(userEntity);
+        
+        return CreatedAtRoute(
+            nameof(GetUserById),
+            new { userId = createdUserEntity.Id },
+            createdUserEntity.Id);
     }
 }
